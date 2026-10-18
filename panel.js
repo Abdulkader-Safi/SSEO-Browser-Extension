@@ -1,4 +1,5 @@
-import { esc, getIndex, getReport, label, pageUrl, runKey, startAudit, when } from "./lib.js";
+import { esc, getIndex, getReport, label, pageUrl, runKey, startAudit } from "./lib.js";
+import { ago, counts, day, finding, metricsHtml, pill, ring, tally, verdict } from "./ui.js";
 
 // A page audited this recently shows its last run instead of re-auditing.
 const REUSE_MS = 10 * 60_000;
@@ -123,7 +124,7 @@ async function notAudited() {
         ? `<section class="card history">
             <p class="t-strong">Earlier on ${esc(new URL(url).host)}</p>
             <div class="history-row">
-              <span class="pill ${tone(avg)}">${avg}</span>
+              ${pill(avg)}
               <p class="t-small muted">${runs.length} page${runs.length === 1 ? "" : "s"} audited, last on ${esc(day(runs[0].date))}</p>
             </div>
           </section>`
@@ -163,16 +164,13 @@ const TABS = [
 
 function results(report, page) {
   const state = { filter: null, tab: "issues", all: false };
-  const n = (s) => page.findings.filter((f) => f.status === s).length;
-  const fails = n("fail");
-  const warns = n("warn");
-  const verdict = report.score >= 90 ? "In good shape" : report.score >= 50 ? "Needs work" : "Needs attention";
+  const c = counts(page.findings);
 
   const draw = () => {
     const inCat = (x) => !state.filter || x.category === state.filter;
     const findings = page.findings.filter(inCat);
     const metrics = page.metrics.filter(inCat);
-    const counts = Object.fromEntries(
+    const tabCounts = Object.fromEntries(
       TABS.map((t) => [t.id, t.pick ? findings.filter(t.pick).length : metrics.length]),
     );
     const tab = TABS.find((t) => t.id === state.tab);
@@ -181,22 +179,18 @@ function results(report, page) {
       <section class="card summary">
         ${ring(report.score)}
         <div class="tally">
-          <p class="t-card-title">${verdict}</p>
-          <ul>
-            <li><i class="dot fail"></i><span class="t-label">${fails} failing</span></li>
-            <li><i class="dot warning"></i><span class="t-label">${warns} warning${warns === 1 ? "" : "s"}</span></li>
-            <li><i class="dot pass"></i><span class="t-label">${n("pass")} passed</span></li>
-          </ul>
+          <p class="t-card-title">${verdict(report.score)}</p>
+          ${tally(c)}
         </div>
       </section>
 
-      <section class="categories" style="display:flex;flex-direction:column;gap:10px">
+      <section class="categories">
         <div class="section-head"><p class="t-strong">Categories</p><p class="t-meta">Pick one to filter</p></div>
         <div class="tiles">
           ${report.categories
             .map(
               (c) => `<button class="tile" data-cat="${esc(c.category)}" aria-pressed="${state.filter === c.category}">
-                <span>${esc(label(c.category))}</span><span class="pill ${tone(c.score)}">${c.score}</span></button>`,
+                <span>${esc(label(c.category))}</span>${pill(c.score)}</button>`,
             )
             .join("")}
         </div>
@@ -206,11 +200,11 @@ function results(report, page) {
       <nav class="tabs" role="tablist">
         ${TABS.map(
           (t) => `<button class="tab" role="tab" data-tab="${t.id}" aria-selected="${t.id === state.tab}">
-            ${t.label}<small>${counts[t.id]}</small></button>`,
+            ${t.label}<small>${tabCounts[t.id]}</small></button>`,
         ).join("")}
       </nav>
 
-      ${tab.id === "data" ? dataTab(metrics) : findingsTab(findings.filter(tab.pick), tab, state)}`;
+      ${tab.id === "data" ? metricsHtml(metrics) : findingsTab(findings.filter(tab.pick), tab, state)}`;
 
     view.querySelectorAll(".tile").forEach((b) =>
       b.addEventListener("click", () => {
@@ -239,98 +233,11 @@ function results(report, page) {
 }
 
 function findingsTab(list, tab, state) {
-  if (!list.length) return `<p class="t-small muted" style="text-align:center;padding:16px">No ${tab.noun} here.</p>`;
+  if (!list.length) return `<p class="t-small muted none">No ${tab.noun} here.</p>`;
   const order = { fail: 0, warn: 1 };
   const sorted = [...list].sort((a, b) => (order[a.status] ?? 2) - (order[b.status] ?? 2));
   const shown = state.all ? sorted : sorted.slice(0, FIRST);
   const rest = sorted.length - shown.length;
   return `<div class="list">${shown.map((f, i) => finding(f, tab.id === "issues" && i === 0)).join("")}</div>
     ${rest ? `<button id="more" class="btn btn-secondary btn-block"><i class="icon i-chevron-down"></i>Show ${rest} more ${tab.noun}</button>` : ""}`;
-}
-
-function finding(f, open) {
-  const status = f.status === "warn" ? "warning" : f.status;
-  const more = f.details || f.evidence || f.fix;
-  return `<details class="finding" ${open && more ? "open" : ""}>
-    <summary>
-      <i class="dot ${status}"></i>
-      <span class="text"><span class="t-strong">${esc(f.title)}</span><span class="t-small muted">${esc(f.message)}</span></span>
-      <i class="icon i-chevron-down chev"></i>
-    </summary>
-    ${
-      more
-        ? `<div class="detail">
-            ${f.details ? `<p class="t-small">${esc(f.details)}</p>` : ""}
-            ${f.evidence ? `<pre class="evidence t-code" style="margin:0">${esc(f.evidence)}</pre>` : ""}
-            ${f.fix ? `<p class="t-small">Fix: ${esc(f.fix)}</p>` : ""}
-          </div>`
-        : ""
-    }
-  </details>`;
-}
-
-function dataTab(metrics) {
-  if (!metrics.length) return `<p class="t-small muted" style="text-align:center;padding:16px">No data here.</p>`;
-  const values = metrics.filter((m) => m.kind === "value");
-  const tables = metrics.filter((m) => m.kind === "table");
-  return `
-    ${
-      values.length
-        ? `<section class="card kv">${values
-            .map(
-              (m) => `<div class="kv-row">
-                <span class="t-label">${esc(m.label)}</span>
-                <div><p class="t-strong v-${esc(m.status ?? "")}">${m.value == null ? "Missing" : `${esc(m.value)}${m.unit ? ` ${esc(m.unit)}` : ""}`}</p>
-                ${m.note ? `<p class="t-meta">${esc(m.note)}</p>` : ""}</div>
-              </div>`,
-            )
-            .join("")}</section>`
-        : ""
-    }
-    <div class="list">${tables
-      .map(
-        (t) => `<details class="finding">
-          <summary><span class="text"><span class="t-strong">${esc(t.label)}</span><span class="t-meta">${t.total} row${t.total === 1 ? "" : "s"}</span></span><i class="icon i-chevron-down chev"></i></summary>
-          <div class="detail table-wrap" style="padding-left:16px">
-            <table class="data-table">
-              <tr>${t.columns.map((c) => `<th>${esc(c)}</th>`).join("")}</tr>
-              ${t.rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}
-            </table>
-            ${t.total > t.rows.length ? `<p class="t-meta">First ${t.rows.length} of ${t.total}.</p>` : ""}
-          </div>
-        </details>`,
-      )
-      .join("")}</div>`;
-}
-
-// ---- Helpers --------------------------------------------------------------
-
-function tone(score) {
-  return score >= 90 ? "pass" : score >= 50 ? "warning" : "fail";
-}
-
-function ring(score) {
-  // 128px ring, 9px thick, matching the Figma score ring.
-  const r = 59.5;
-  const c = 2 * Math.PI * r;
-  return `<div class="ring ${tone(score)}" role="img" aria-label="Score ${score} out of 100">
-    <svg width="128" height="128" viewBox="0 0 128 128" fill="none">
-      <circle class="track" cx="64" cy="64" r="${r}" stroke-width="9"/>
-      <circle class="arc" cx="64" cy="64" r="${r}" stroke-width="9" stroke-dasharray="${(c * score) / 100} ${c}"/>
-    </svg>
-    <span class="t-metric">${score}</span>
-    <span class="t-meta">out of 100</span>
-  </div>`;
-}
-
-function ago(iso) {
-  const s = Math.round((Date.now() - Date.parse(iso)) / 1000);
-  if (s < 60) return "just now";
-  if (s < 3600) return `${Math.round(s / 60)} min ago`;
-  if (s < 86400) return `${Math.round(s / 3600)} h ago`;
-  return `on ${when(iso)}`;
-}
-
-function day(iso) {
-  return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }

@@ -3,17 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SSEO audits</title>
-  <link rel="stylesheet" href="style.css">
+  <title>SSEO dashboard</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="dashboard.css">
 </head>
 <body class="dash">
-  <aside class="side">
-    <strong class="brand">SSEO</strong>
-    <input id="q" type="search" placeholder="Search sites and pages" autocomplete="off">
-    <nav id="sites"></nav>
-    <button id="clear-all" class="btn danger">Delete all history</button>
+  <aside class="card sidebar">
+    <a class="logo" href="#">
+      <span class="mark t-small-title" aria-hidden="true">S</span>
+      <strong class="t-small-title">SSEO</strong>
+    </a>
+    <label class="search">
+      <i class="icon i-search"></i>
+      <input id="q" type="search" placeholder="Search sites and pages" autocomplete="off" aria-label="Search sites and pages">
+    </label>
+    <div class="sites-head"><p class="t-strong">Sites</p><p id="site-count" class="t-meta"></p></div>
+    <nav id="sites" class="sites"></nav>
+    <div class="storage">
+      <p class="t-strong" id="storage-title">Saved on this computer</p>
+      <p class="t-meta" id="storage-text"></p>
+      <button id="clear-all" class="btn btn-secondary"><i class="icon i-trash"></i>Delete all history</button>
+    </div>
   </aside>
-  <main id="main"></main>
+  <main id="main" class="main"></main>
   <script type="module" src="dashboard.js"></script>
 </body>
 </html>

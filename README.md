@@ -30,10 +30,11 @@ background.js      Runs audits, saves history
 panel.html/.js/.css Side panel: the audit of the current page
 tokens.css         Design tokens, fonts and icon classes from the Figma file
 icons/             Reicon SVGs used through CSS masks
-view.js            Report layout shared by the panel and report page
-dashboard.html/.js History of sites and pages
+ui.js              Markup shared by the panel, dashboard and reports
+pagereport.js      Page report body used by the dashboard and PDFs
+components.css     Shared component styles
+dashboard.html/.js/.css History of sites and pages, and the page report
 report.html/.js    Full report, PDF and JSON export
 lib.js             Storage and small helpers shared by all pages
-style.css          All styles
 scanner-entry.js   What gets bundled from the scanner into dist/scanner.js
 ```

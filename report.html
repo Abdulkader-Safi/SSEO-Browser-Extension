@@ -4,14 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SSEO report</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="dashboard.css">
 </head>
 <body class="report">
-  <header class="bar">
-    <a class="brand" href="dashboard.html">SSEO</a>
-    <span id="title" class="grow muted"></span>
-    <button id="json" class="btn">Download JSON</button>
-    <button id="pdf" class="btn primary">Save as PDF</button>
+  <header class="report-bar no-print">
+    <a class="logo" href="dashboard.html"><span class="mark t-small-title" aria-hidden="true">S</span><strong class="t-small-title">SSEO</strong></a>
+    <span class="grow"></span>
+    <button id="json" class="btn btn-secondary"><i class="icon i-download"></i>Download JSON</button>
+    <button id="pdf" class="btn btn-primary"><i class="icon i-file-pdf"></i>Save as PDF</button>
   </header>
   <main id="view" class="sheet"></main>
   <script type="module" src="report.js"></script>
