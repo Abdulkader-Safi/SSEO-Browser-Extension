@@ -4,12 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild scanner-entry.js --bundle --format=esm --platform=browser --target=chrome120 --external:playwright --external:@axe-core/playwright --outfile=dist/scanner.js"
+    "build": "esbuild scanner-entry.js --bundle --format=esm --platform=browser --target=chrome120 --external:playwright --external:@axe-core/playwright --outfile=dist/scanner.js && mkdir -p dist/fonts && cp node_modules/@fontsource/funnel-display/files/funnel-display-latin-600-normal.woff2 node_modules/@fontsource/funnel-display/files/funnel-display-latin-800-normal.woff2 node_modules/@fontsource/funnel-sans/files/funnel-sans-latin-400-normal.woff2 node_modules/@fontsource/funnel-sans/files/funnel-sans-latin-500-normal.woff2 node_modules/@fontsource/funnel-sans/files/funnel-sans-latin-600-normal.woff2 node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2 dist/fonts/"
   },
   "dependencies": {
     "safi-studio-scanner": "^1.0.2"
   },
   "devDependencies": {
+    "@fontsource/funnel-display": "^5.3.0",
+    "@fontsource/funnel-sans": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
     "esbuild": "^0.28.2"
   }
 }

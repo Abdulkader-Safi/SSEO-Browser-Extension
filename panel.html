@@ -4,16 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SSEO</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="panel.css">
 </head>
-<body class="panel">
-  <header class="bar">
-    <strong class="brand">SSEO</strong>
-    <span class="grow"></span>
-    <button id="rerun" class="btn" hidden>Re-audit</button>
-    <button id="open-dashboard" class="btn primary">Open dashboard</button>
+<body>
+  <header class="header">
+    <span class="mark t-small-title" aria-hidden="true">S</span>
+    <strong class="wordmark t-small-title">SSEO</strong>
+    <button id="rerun" class="icon-btn" title="Re-audit this page" aria-label="Re-audit this page" hidden><i class="icon i-refresh"></i></button>
+    <button id="open-dashboard" class="btn btn-primary"><i class="icon i-dashboard"></i>Dashboard</button>
   </header>
-  <p id="url" class="url"></p>
+  <section id="page" class="card page" hidden>
+    <span class="favicon"><i class="icon i-globe"></i></span>
+    <div class="page-text">
+      <p id="url" class="t-strong"></p>
+      <p id="meta" class="t-meta"></p>
+    </div>
+  </section>
   <main id="view"></main>
   <script type="module" src="panel.js"></script>
 </body>

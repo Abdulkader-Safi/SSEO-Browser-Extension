@@ -27,7 +27,9 @@ Then open `chrome://extensions`, turn on Developer mode, click "Load unpacked" a
 ```
 manifest.json      Permissions, side panel and the sseo address-bar keyword
 background.js      Runs audits, saves history
-panel.html/.js     Side panel: the audit of the current page
+panel.html/.js/.css Side panel: the audit of the current page
+tokens.css         Design tokens, fonts and icon classes from the Figma file
+icons/             Reicon SVGs used through CSS masks
 view.js            Report layout shared by the panel and report page
 dashboard.html/.js History of sites and pages
 report.html/.js    Full report, PDF and JSON export

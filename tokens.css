@@ -1,0 +1,68 @@
+/* Design tokens from the SSEO Figma file (Foundations page). Names match the
+   Figma variables' web code syntax. */
+
+@font-face { font-family: "Funnel Display"; font-weight: 600; font-display: swap; src: url(dist/fonts/funnel-display-latin-600-normal.woff2) format("woff2"); }
+@font-face { font-family: "Funnel Display"; font-weight: 800; font-display: swap; src: url(dist/fonts/funnel-display-latin-800-normal.woff2) format("woff2"); }
+@font-face { font-family: "Funnel Sans"; font-weight: 400; font-display: swap; src: url(dist/fonts/funnel-sans-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "Funnel Sans"; font-weight: 500; font-display: swap; src: url(dist/fonts/funnel-sans-latin-500-normal.woff2) format("woff2"); }
+@font-face { font-family: "Funnel Sans"; font-weight: 600; font-display: swap; src: url(dist/fonts/funnel-sans-latin-600-normal.woff2) format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-weight: 400; font-display: swap; src: url(dist/fonts/jetbrains-mono-latin-400-normal.woff2) format("woff2"); }
+
+:root {
+  --font-display: "Funnel Display", system-ui, sans-serif;
+  --font-body: "Funnel Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --surface-page: #eff2e9;
+  --surface-card: #ffffff;
+  --surface-sunken: #e3e9d9;
+  --surface-dark: #101614;
+  --surface-brand: #0e653f;
+  --surface-accent: #d6f24e;
+  --text-primary: #101614;
+  --text-secondary: #5b6660;
+  --text-brand: #0e653f;
+  --text-on-dark: #f3f6ef;
+  --text-on-accent: #101614;
+  --border-subtle: #dce2d2;
+  --status-pass: #0e653f;
+  --status-warning: #e09c00;
+  --status-fail: #c2402f;
+  --status-pass-soft: #d8ebdd;
+  --status-warning-soft: #f6ebcb;
+  --status-fail-soft: #f6ddd6;
+  --status-warning-text: #7a5200;
+
+  --radius-pill: 999px;
+  --radius-panel: 32px;
+  --radius-card: 24px;
+  --radius-inner: 16px;
+  --radius-tight: 12px;
+  --radius-mark: 6px;
+
+  --lift-card: 0 1px 2px rgba(16, 22, 20, 0.04), 0 8px 20px -6px rgba(16, 22, 20, 0.05);
+  --lift-panel: 0 2px 4px rgba(9, 76, 47, 0.1), 0 16px 36px -12px rgba(9, 76, 47, 0.14);
+}
+
+/* Icons are the reicon SVGs, painted through a mask so they take currentColor. */
+.icon {
+  display: inline-block;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  background: currentColor;
+  -webkit-mask: var(--src) center / contain no-repeat;
+  mask: var(--src) center / contain no-repeat;
+}
+.i-refresh { --src: url(icons/refresh.svg); }
+.i-dashboard { --src: url(icons/dashboard.svg); }
+.i-globe { --src: url(icons/globe.svg); }
+.i-chevron-down { --src: url(icons/chevron-down.svg); }
+.i-chevron-right { --src: url(icons/chevron-right.svg); }
+.i-arrow-up-right { --src: url(icons/arrow-up-right.svg); }
+.i-search { --src: url(icons/search.svg); }
+.i-download { --src: url(icons/download.svg); }
+.i-trash { --src: url(icons/trash.svg); }
+.i-file-pdf { --src: url(icons/file-pdf.svg); }
+.i-check { --src: url(icons/check.svg); }
+.i-history { --src: url(icons/history.svg); }
