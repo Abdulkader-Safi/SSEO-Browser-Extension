@@ -23,6 +23,9 @@ globalThis.fetch = async (input, init = {}) => {
   return new Response(null, { status: 301, headers: { location: res.url } });
 };
 
+// The toolbar icon opens the side panel.
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(console.error);
+
 // A run that has not reported in this long died with a previous worker.
 const STALE_MS = 60_000;
 

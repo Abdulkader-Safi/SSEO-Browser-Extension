@@ -3,11 +3,13 @@
   "name": "SSEO",
   "version": "0.1.0",
   "description": "Audit the SEO of the page you are on and keep a history of every page you checked, with PDF reports.",
-  "permissions": ["storage", "unlimitedStorage"],
+  "permissions": ["storage", "unlimitedStorage", "sidePanel"],
   "host_permissions": ["<all_urls>"],
   "action": {
-    "default_popup": "popup.html",
     "default_title": "Audit this page"
+  },
+  "side_panel": {
+    "default_path": "panel.html"
   },
   "background": {
     "service_worker": "background.js",

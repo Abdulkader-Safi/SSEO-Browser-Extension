@@ -1,4 +1,4 @@
-// Shared by the service worker, popup, dashboard and report page.
+// Shared by the service worker, side panel, dashboard and report page.
 //
 // Storage layout (chrome.storage.local):
 //   index           array of run summaries, newest first
@@ -50,6 +50,8 @@ export function when(iso) {
   return new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
 
+const LABELS = { "core-seo": "Core SEO", eeat: "E-E-A-T", "url-structure": "URL structure" };
+
 export function label(category) {
-  return category.replace(/[-_]/g, " ").replace(/^./, (c) => c.toUpperCase());
+  return LABELS[category] ?? category.replace(/[-_]/g, " ").replace(/^./, (c) => c.toUpperCase());
 }

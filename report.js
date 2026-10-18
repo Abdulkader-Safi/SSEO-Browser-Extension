@@ -1,12 +1,13 @@
-import { aggregate, render } from "./dist/scanner.js";
+import { aggregate } from "./dist/scanner.js";
 import { getIndex, getReport } from "./lib.js";
+import { mount } from "./view.js";
 
 // report.html?id=<run>        one page audit
 // report.html?site=<origin>   the latest audit of every page on a site, merged
 // &print=1                    opens the print dialog (Save as PDF) once loaded
 
 const params = new URLSearchParams(location.search);
-const frame = document.getElementById("frame");
+const view = document.getElementById("view");
 const titleEl = document.getElementById("title");
 
 const report = params.has("site") ? await siteReport(params.get("site")) : await getReport(params.get("id"));
@@ -15,20 +16,16 @@ if (!report) {
   titleEl.textContent = "This report no longer exists.";
 } else {
   const name = params.has("site") ? new URL(report.startUrl).host : report.startUrl;
-  titleEl.textContent = `${name} · ${report.pagesScanned} page${report.pagesScanned === 1 ? "" : "s"}`;
-  // The scanner's HTML is self-contained: inline styles, no scripts.
-  frame.srcdoc = render(report, "html");
-  await new Promise((r) => frame.addEventListener("load", r, { once: true }));
-
-  // Name the PDF after the page; Chrome uses the printed document's title.
-  const stamp = report.generatedAt.slice(0, 10);
-  document.title = frame.contentDocument.title = `SSEO ${name.replace(/^https?:\/\//, "")} ${stamp}`;
+  titleEl.textContent = name;
+  // Chrome names the saved PDF after the page title.
+  document.title = `SSEO ${name.replace(/^https?:\/\//, "")} ${report.generatedAt.slice(0, 10)}`;
+  mount(view, report);
 
   document.getElementById("pdf").addEventListener("click", printReport);
   document.getElementById("json").addEventListener("click", () => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([JSON.stringify(report, null, 2)], { type: "application/json" }));
-    a.download = `${frame.contentDocument.title}.json`;
+    a.download = `${document.title}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   });
@@ -37,8 +34,8 @@ if (!report) {
 
 function printReport() {
   // Collapsed sections would print empty, so open everything first.
-  frame.contentDocument.querySelectorAll("details").forEach((d) => (d.open = true));
-  frame.contentWindow.print();
+  view.querySelectorAll("details").forEach((d) => (d.open = true));
+  print();
 }
 
 async function siteReport(origin) {

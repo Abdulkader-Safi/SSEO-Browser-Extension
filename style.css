@@ -80,8 +80,8 @@ pre {
 .bad-text { color: var(--bad); }
 .empty { padding: 24px 16px; color: var(--muted); text-align: center; }
 
-/* Popup */
-.popup { width: 440px; max-height: 600px; }
+/* Side panel */
+.panel .bar { position: sticky; top: 0; z-index: 1; }
 .url { margin: 0; padding: 8px 14px; font-size: 12px; color: var(--muted); word-break: break-all; border-bottom: 1px solid var(--line); }
 .progress { padding: 32px 20px; text-align: center; }
 .track { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
@@ -96,7 +96,7 @@ pre {
 .score.ok { border-color: var(--ok); color: var(--ok); }
 .score.bad { border-color: var(--bad); color: var(--bad); }
 
-.cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0 14px 12px; }
+.cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; padding: 0 14px 12px; }
 .cat {
   display: flex; justify-content: space-between; align-items: center; gap: 4px;
   border: 1px solid var(--line); background: var(--card); color: var(--ink);
@@ -174,7 +174,23 @@ input[type="search"], input[type="url"] {
   .pages { display: block; overflow-x: auto; }
 }
 
-/* Report */
-.report { display: flex; flex-direction: column; height: 100vh; }
+.empty .btn { margin-top: 8px; }
+
+/* Report page */
+.report .bar { position: sticky; top: 0; z-index: 1; }
 .report .bar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#frame { flex: 1; width: 100%; border: 0; background: #fff; }
+.sheet { max-width: 960px; margin: 0 auto; padding: 16px 0 48px; }
+.sheet .summary { padding: 24px 14px; }
+.page-sec { margin-top: 24px; }
+.page-sec h2 { display: flex; gap: 10px; align-items: center; font-size: 15px; margin: 0 14px 10px; word-break: break-all; }
+
+@media print {
+  :root { --bg: #fff; --card: #fff; --ink: #000; --muted: #555; --line: #ddd; }
+  .bar, .filtering { display: none; }
+  .sheet { padding: 0; max-width: none; }
+  .cat { border-color: #ccc; }
+  .group, .finding, .page-sec { break-inside: avoid-page; }
+  .group > summary, .finding > summary { list-style: none; }
+  .group > summary::-webkit-details-marker { display: none; }
+  .scroll { overflow: visible; }
+}
