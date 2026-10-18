@@ -1,0 +1,15 @@
+{
+  "name": "sseo-browser-extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild scanner-entry.js --bundle --format=esm --platform=browser --target=chrome120 --external:playwright --external:@axe-core/playwright --outfile=dist/scanner.js"
+  },
+  "dependencies": {
+    "safi-studio-scanner": "^1.0.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
