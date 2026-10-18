@@ -32,12 +32,12 @@ p, h1, h2, h3, pre { margin: 0; }
 .card { background: var(--surface-card); border-radius: var(--radius-card); box-shadow: var(--lift-card); }
 .list { display: flex; flex-direction: column; gap: 8px; }
 
-/* Logo mark */
+/* Logo mark: the Gauge direction from the Figma Logo section */
 .mark {
   width: 32px; height: 32px; flex: none;
   display: grid; place-items: center;
-  background: var(--surface-dark); color: var(--surface-accent);
-  border-radius: var(--radius-tight);
+  background: var(--surface-brand); color: var(--surface-accent);
+  border-radius: 9px; /* 44/160 of the master mark */
 }
 
 /* Buttons */
