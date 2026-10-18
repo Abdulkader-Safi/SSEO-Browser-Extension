@@ -154,7 +154,7 @@
   .page-row .when { flex-direction: row; gap: 8px; justify-self: end; }
 }
 @media (max-width: 1200px) {
-  .pr-body { grid-template-columns: 1fr; }
+  .pr-body { grid-template-columns: minmax(0, 1fr); }
   .pr-side { position: static; max-height: none; overflow: visible; }
   .stats { grid-template-columns: repeat(2, 1fr); }
 }
@@ -178,7 +178,8 @@
   .no-print, .tabs, .filtering, .run-picker { display: none !important; }
   .print-title { display: block; }
   .pr-top, .pr-side, .tabs-bar { position: static; max-height: none; overflow: visible; }
-  .pr-body { grid-template-columns: 1fr; }
+  .pr-side { margin: 0; padding: 0; }
+  .pr-body { grid-template-columns: minmax(0, 1fr); }
   .tab-panel { display: flex !important; }
   .finding, .card, .group-head { break-inside: avoid; }
   .page-break { break-before: page; }
