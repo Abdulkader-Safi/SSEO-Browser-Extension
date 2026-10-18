@@ -29,7 +29,7 @@ manifest.json      Permissions, side panel and the sseo address-bar keyword
 background.js      Runs audits, saves history
 panel.html/.js/.css Side panel: the audit of the current page
 tokens.css         Design tokens, fonts and icon classes from the Figma file
-icons/             Reicon SVGs used through CSS masks
+icons/             Reicon SVGs (CSS masks), logo.svg and the app icon PNGs rendered from it
 ui.js              Markup shared by the panel, dashboard and reports
 pagereport.js      Page report body used by the dashboard and PDFs
 components.css     Shared component styles
