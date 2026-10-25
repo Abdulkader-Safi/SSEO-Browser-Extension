@@ -175,6 +175,17 @@
 .report-bar .grow { flex: 1; }
 .sheet { max-width: 1180px; margin: 0 auto; padding: 16px 24px 64px; display: flex; flex-direction: column; gap: 24px; }
 .page-break { display: flex; flex-direction: column; gap: 24px; padding-top: 24px; }
+.section-title { margin-top: 8px; }
+.site-issue { padding: 14px 14px 4px 16px; }
+.site-issue-head { display: flex; align-items: flex-start; gap: 12px; }
+.site-issue-head .dot { width: 10px; height: 10px; margin-top: 5px; }
+.site-issue .detail { margin-top: 6px; padding: 0 0 10px 22px; } /* lines up with the title */
+.page-issues { padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; }
+.page-issues-head { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.page-issues ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.page-issues li { display: flex; align-items: baseline; gap: 10px; }
+.page-issues li .dot { transform: translateY(-1px); }
+.page-issues b { font-weight: 600; }
 
 /* PDF export (report.html) */
 @media print {
@@ -187,7 +198,8 @@
   .pr-body { grid-template-columns: minmax(0, 1fr); }
   .tab-panel { display: flex !important; }
   .finding, .card, .group-head { break-inside: avoid; }
-  .page-break { break-before: page; }
+  .page-break, .page-break-before { break-before: page; }
+  .page-issues, .site-issue { break-inside: avoid; }
   .sheet { padding: 0; }
   .card, .finding { border: 1px solid var(--border-subtle); }
 }

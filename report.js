@@ -1,5 +1,5 @@
 import { aggregate } from "./dist/scanner.js";
-import { esc, getIndex, getReport, when } from "./lib.js";
+import { esc, getIndex, getReport, label, when } from "./lib.js";
 import { pill, plural } from "./ui.js";
 import { mountPageReport } from "./pagereport.js";
 
@@ -71,22 +71,78 @@ async function sitePage(origin) {
       <div class="stat"><p class="t-label">Failing checks</p><p class="t-metric">${pairs.reduce((n, [e]) => n + e.fail, 0)}</p></div>
       <div class="stat"><p class="t-label">Warnings</p><p class="t-metric">${pairs.reduce((n, [e]) => n + e.warn, 0)}</p></div>
     </section>
+    <h2 class="t-card-title section-title">Issues across the site</h2>
+    ${siteIssues(pairs)}
+    <h2 class="t-card-title section-title page-break-before">Pages</h2>
     <section class="card kv">${pairs
       .map(([e]) => {
         const u = new URL(e.url);
         return `<div class="kv-row" style="align-items:center">${pill(e.score)}<div><p class="t-strong">${esc(u.pathname + u.search)}</p><p class="t-meta">${e.fail} failing, ${plural(e.warn, "warning")} · ${esc(when(e.date))}</p></div></div>`;
       })
       .join("")}</section>
-    ${pairs.map((_, i) => `<div class="page-break" id="p${i}"></div>`).join("")}`;
+    <h2 class="t-card-title section-title page-break-before">Issues by page</h2>
+    ${pageIssues(pairs)}`;
+}
 
-  pairs.forEach(([e, r], i) => {
-    const holder = view.querySelector(`#p${i}`);
-    const u = new URL(e.url);
-    holder.innerHTML = `${heading(u, e.title, r.pages[0].status, e.date)}<div class="pr"></div>`;
-    // Per-page categories and score, so each section reads like its own report.
-    const one = aggregate(e.url, r.generatedAt, r.pages);
-    mountPageReport(holder.querySelector(".pr"), { report: one, runs: index.filter((x) => x.url === e.url), print: true });
-  });
+// A site report summarises: each failing or warning check once, with the pages
+// it hits, then a one-line-per-issue list per page. Every page's full report
+// (passed checks and data tables included) made a 200-page site PDF too big to
+// preview; the full detail stays one click away in each page's own PDF.
+// Declared, not const: the code at the top of this module runs before here.
+function path(url) {
+  const u = new URL(url);
+  return u.pathname + u.search;
+}
+
+function siteIssues(pairs) {
+  const PAGE_SAMPLE = 10; // pages named per issue
+  const rules = new Map();
+  for (const [e, r] of pairs) {
+    for (const f of r.pages[0].findings) {
+      if (f.status !== "fail" && f.status !== "warn") continue;
+      let rule = rules.get(f.ruleId);
+      if (!rule) rules.set(f.ruleId, (rule = { title: f.title, category: f.category, fix: f.fix, fail: 0, warn: 0, pages: [] }));
+      rule[f.status]++;
+      if (!rule.pages.includes(e.url)) rule.pages.push(e.url);
+    }
+  }
+  if (!rules.size) return `<p class="t-body muted">No failing checks or warnings on any page.</p>`;
+  const list = [...rules.values()].sort((a, b) => (b.fail > 0) - (a.fail > 0) || b.pages.length - a.pages.length);
+  return `<div class="list">${list
+    .map((r) => {
+      const status = r.fail ? "fail" : "warning";
+      const shown = r.pages.slice(0, PAGE_SAMPLE).map(path);
+      const more = r.pages.length - shown.length;
+      return `<section class="finding site-issue">
+        <div class="site-issue-head"><i class="dot ${status}"></i>
+          <div class="text"><span class="t-strong">${esc(r.title)}</span>
+          <span class="t-meta">${esc(label(r.category))} · ${r.fail ? "Fails" : "Warning"} on ${plural(r.pages.length, "page")} of ${pairs.length}</span></div>
+        </div>
+        <div class="detail">
+          ${r.fix ? `<p class="t-small">Fix: ${esc(r.fix)}</p>` : ""}
+          <p class="t-meta">${shown.map(esc).join(", ")}${more ? ` and ${more} more` : ""}</p>
+        </div>
+      </section>`;
+    })
+    .join("")}</div>`;
+}
+
+function pageIssues(pairs) {
+  const withIssues = pairs.filter(([e]) => e.fail || e.warn);
+  if (!withIssues.length) return `<p class="t-body muted">Every page passed.</p>`;
+  return `<div class="list">${withIssues
+    .map(([e, r]) => {
+      const issues = r.pages[0].findings
+        .filter((f) => f.status === "fail" || f.status === "warn")
+        .sort((a, b) => (a.status === "fail" ? -1 : 0) - (b.status === "fail" ? -1 : 0));
+      return `<section class="card page-issues">
+        <div class="page-issues-head">${pill(e.score)}<p class="t-strong one-line">${esc(path(e.url))}</p></div>
+        <ul>${issues
+          .map((f) => `<li><i class="dot ${f.status === "warn" ? "warning" : "fail"}"></i><span class="t-small"><b>${esc(f.title)}</b> <span class="muted">${esc(f.message)}</span></span></li>`)
+          .join("")}</ul>
+      </section>`;
+    })
+    .join("")}</div>`;
 }
 
 function heading(u, title, status, date) {
