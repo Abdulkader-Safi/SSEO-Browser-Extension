@@ -154,6 +154,45 @@ p, h1, h2, h3, pre { margin: 0; }
 .skeleton { border-radius: var(--radius-inner); background: var(--surface-sunken); animation: pulse 1.4s ease-in-out infinite; }
 @keyframes pulse { 50% { opacity: 0.55; } }
 
+.one-line { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Multi-page audits (bulk.js): mode switch, list and site forms, job progress */
+.bulk { display: flex; flex-direction: column; gap: 12px; padding: 16px; }
+.bulk .tabs { background: var(--surface-sunken); align-self: flex-start; max-width: 100%; }
+.bulk .tab { padding: 8px 14px; }
+.bulk-mode { display: flex; flex-direction: column; gap: 12px; }
+.bulk textarea {
+  width: 100%; min-height: 120px; resize: vertical;
+  padding: 12px 14px; border: 0; border-radius: var(--radius-inner);
+  background: var(--surface-sunken); color: var(--text-primary);
+  font: 400 14px/1.6 var(--font-mono); outline: none;
+}
+.bulk textarea::placeholder { color: var(--text-secondary); }
+.bulk .field {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-radius: var(--radius-pill);
+  background: var(--surface-sunken); color: var(--text-secondary);
+}
+.bulk .field input { flex: 1; min-width: 0; border: 0; padding: 0; background: none; outline: none; font: 400 15px/1.55 var(--font-body); color: var(--text-primary); }
+.bulk :is(textarea, .field):focus-within { outline: 2px solid var(--text-brand); outline-offset: 2px; }
+.bulk-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.bulk-foot > .t-meta { flex: 1; min-width: 180px; }
+.limit { display: inline-flex; align-items: center; gap: 8px; }
+.limit input {
+  width: 72px; padding: 8px 10px; border: 0; border-radius: var(--radius-tight);
+  background: var(--surface-sunken); font: 600 15px/1.4 var(--font-body); color: var(--text-primary); text-align: center;
+}
+.bulk-error { color: var(--status-fail); }
+.job { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px 20px; }
+.job > * { max-width: 100%; }
+.job .progress-head { display: flex; gap: 8px; width: 100%; padding-right: 0; }
+.job .progress-head .t-strong { flex: 1; }
+.job .bar { width: 100%; }
+.job-foot { display: flex; align-items: center; gap: 12px; width: 100%; }
+.job-foot .t-meta { flex: 1; min-width: 0; }
+.job-close { position: absolute; top: 12px; right: 12px; }
+.job:has(.job-close) { padding-right: 60px; }
+
 /* Empty states */
 .empty-mark { width: 56px; height: 56px; flex: none; display: grid; place-items: center; background: var(--surface-accent); color: var(--text-on-accent); border-radius: var(--radius-pill); }
 .empty-mark .icon { width: 24px; height: 24px; }

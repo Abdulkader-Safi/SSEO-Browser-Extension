@@ -3,9 +3,11 @@
 // Storage layout (chrome.storage.local):
 //   index           array of run summaries, newest first
 //   report:<id>     the scanner's full AuditReport for one run
-// Live progress sits in chrome.storage.session under run:<url>.
+// Live progress sits in chrome.storage.session under run:<url>, and a
+// multi-page job (list or crawl) under "job".
 
 export const runKey = (url) => `run:${url}`;
+export const JOB_KEY = "job";
 export const reportKey = (id) => `report:${id}`;
 
 /** Page address without the #fragment, so one page maps to one history entry. */
@@ -13,6 +15,18 @@ export function pageUrl(u) {
   const x = new URL(u);
   x.hash = "";
   return x.toString();
+}
+
+/** Accepts "example.com/x" as well as full addresses. Null when it isn't a web address. */
+export function normalizeUrl(raw) {
+  const s = String(raw ?? "").trim();
+  if (!s) return null;
+  try {
+    const url = pageUrl(/^https?:\/\//i.test(s) ? s : `https://${s}`);
+    return /^https?:$/.test(new URL(url).protocol) && new URL(url).hostname.includes(".") ? url : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getIndex() {

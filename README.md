@@ -4,6 +4,7 @@ A Chrome extension that audits the SEO of the page you are on with [Safi Studio 
 
 - Click the toolbar icon to open the side panel, which audits the current page only. It shows the score, a score per category (click one to filter), failing checks first with the evidence and the fix, and the raw page data. The panel follows the tab you are on: a page audited in the last 10 minutes shows its last result, any other page gets an "Audit this page" button.
 - The dashboard lists every audited site and page, with each page's past runs. You can re-audit, delete, or paste any address to audit it.
+- Audit more than one page, from the panel or the dashboard: paste a list of addresses (one per line, up to 100), or audit a whole site by giving its address and a page limit (up to 200). The crawl follows links on the same site. Every page is saved as its own entry, a progress card shows how far it got, and Stop ends it early.
 - Every run opens as a full-page report in the same layout as the panel, saved as PDF through Chrome's print dialog. "Site PDF" merges the latest audit of every page on a site into one report.
 - Open the dashboard from the side panel, or type `sseo` and a space in the address bar, then Enter.
 
@@ -31,6 +32,7 @@ panel.html/.js/.css Side panel: the audit of the current page
 tokens.css         Design tokens, fonts and icon classes from the Figma file
 icons/             Reicon SVGs (CSS masks), logo.svg and the app icon PNGs rendered from it
 ui.js              Markup shared by the panel, dashboard and reports
+bulk.js            The list and whole-site audit form, and the job progress card
 pagereport.js      Page report body used by the dashboard and PDFs
 components.css     Shared component styles
 dashboard.html/.js/.css History of sites and pages, and the page report

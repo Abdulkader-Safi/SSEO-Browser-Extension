@@ -1,4 +1,5 @@
-import { deleteRuns, esc, getIndex, getReport, pageUrl, startAudit, when } from "./lib.js";
+import { JOB_KEY, deleteRuns, esc, getIndex, getReport, normalizeUrl, startAudit, when } from "./lib.js";
+import { bulkHtml, getJob, jobHtml, wireBulk, wireJob } from "./bulk.js";
 import { pill, plural, short } from "./ui.js";
 import { mountPageReport } from "./pagereport.js";
 
@@ -30,7 +31,21 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes.index) load();
   // Progress ticks rewrite session state often; only a start or finish matters here.
   if (area === "session" && Object.values(changes).some((c) => c.oldValue?.state !== c.newValue?.state)) load();
+  if (area === "session" && JOB_KEY in changes) {
+    showJob();
+    // When a list or site audit finishes, show the site it covered.
+    const { oldValue, newValue } = changes[JOB_KEY];
+    if (newValue?.state === "done" && oldValue?.state !== "done" && newValue.saved && !params().get("run")) go("site", newValue.origin);
+  }
 });
+
+let auditMode = "one";
+async function showJob() {
+  const slot = main.querySelector("#job-slot");
+  if (!slot) return;
+  slot.innerHTML = jobHtml(await getJob());
+  wireJob(slot);
+}
 
 load();
 
@@ -135,35 +150,38 @@ function sidebar(bySite, active) {
 
 // ---- Views ----------------------------------------------------------------
 
-/** Re-renders keep whatever the person was typing into the audit field. */
+/** Re-renders keep whatever the person was typing into any audit field. */
 function paint(html) {
-  const field = main.querySelector("#audit-url");
-  const typed = field?.value;
-  const focused = document.activeElement === field;
-  main.innerHTML = html;
-  const next = main.querySelector("#audit-url");
-  if (next && typed) next.value = typed;
-  if (next && focused) next.focus();
+  const kept = Object.fromEntries([...main.querySelectorAll("[data-keep]")].map((f) => [f.id, f.value]));
+  const focused = document.activeElement?.closest("#main") ? document.activeElement.id : null;
+  main.innerHTML = `<div id="job-slot"></div>${html}`;
+  for (const [id, v] of Object.entries(kept)) {
+    const f = main.querySelector(`#${id}`);
+    if (f && v) f.value = v;
+  }
+  if (focused) main.querySelector(`#${focused}`)?.focus();
   main.querySelector("#audit-form")?.addEventListener("submit", submitAudit);
+  wireBulk(main, { onMode: (m) => (auditMode = m) });
+  showJob();
+}
+
+/** The audit form: one page, a list of pages, or a whole site. */
+function auditCard(placeholder, site = "") {
+  return bulkHtml({ one: auditField(placeholder), site, mode: auditMode });
 }
 
 function auditField(placeholder) {
   return `<form id="audit-form" class="audit-field no-print">
     <i class="icon i-globe"></i>
-    <input id="audit-url" type="text" inputmode="url" required placeholder="${esc(placeholder)}" aria-label="Page address to audit">
+    <input id="audit-url" data-keep type="text" inputmode="url" required placeholder="${esc(placeholder)}" aria-label="Page address to audit">
     <button class="btn btn-primary">Audit page</button>
   </form>`;
 }
 
 async function submitAudit(ev) {
   ev.preventDefault();
-  const raw = ev.target.querySelector("input").value;
-  let url;
-  try {
-    url = pageUrl(/^https?:\/\//i.test(raw.trim()) ? raw.trim() : `https://${raw.trim()}`);
-  } catch {
-    return;
-  }
+  const url = normalizeUrl(ev.target.querySelector("input").value);
+  if (!url) return;
   ev.target.querySelector("input").value = "";
   running.add(url);
   go("site", new URL(url).origin);
@@ -178,7 +196,7 @@ function emptyView() {
       <span class="empty-mark"><i class="icon i-dashboard"></i></span>
       <h1 class="t-section">Your audit history lives here</h1>
       <p class="t-lead muted">Open the side panel on any website to audit the page you are on, or paste an address below. Every run is kept by site, each with its own PDF.</p>
-      ${auditField("Paste a page address to audit it")}
+      ${auditCard("Paste a page address to audit it")}
       ${pending.map((u) => `<p class="t-meta">Auditing ${esc(u)}</p>`).join("")}
     </section>
   </div>`);
@@ -211,13 +229,13 @@ function siteView(origin, pages) {
       <div class="stat"><p class="t-label">Failing checks</p><p class="t-metric">${latest.reduce((n, e) => n + e.fail, 0)}</p></div>
       <div class="stat"><p class="t-label">Audits run</p><p class="t-metric">${runs}</p></div>
     </section>
-    ${auditField(`Audit another page, for example ${host}/about`)}
+    ${auditCard(`Audit another page, for example ${host}/about`, `${origin}/`)}
     <div class="list-head"><p class="t-strong">Pages</p><p class="t-meta">Sorted by path</p></div>
     <div class="pages">
       ${pending
         .map((u) => {
           const p = new URL(u);
-          return `<div class="page-row" style="grid-template-columns:auto minmax(0,1fr);grid-template-areas:none">
+          return `<div class="page-row pending-row">
             <span class="site-mark"><i class="icon i-refresh"></i></span>
             <div class="page-cell"><span class="t-strong">${esc(p.pathname + p.search)}</span><span class="t-meta">Auditing now</span></div>
           </div>`;

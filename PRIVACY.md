@@ -1,6 +1,6 @@
 # SSEO privacy policy
 
-Last updated: 18 October 2026
+Last updated: 25 October 2026
 
 SSEO is a browser extension that audits the SEO of the web pages you choose and keeps a history of those audits on your computer. This policy covers what it stores, what it sends, and how to delete it. It is short because there is little to say.
 
@@ -20,7 +20,8 @@ SSEO has no server. There is no account and no analytics, and nothing you audit 
 
 To run an audit, your browser requests, directly from the site being audited:
 
-- the page itself
+- the page itself, or each page in a list you paste
+- for a whole-site audit, the pages that page links to on the same site, up to the page limit you set
 - that site's `robots.txt` and sitemap
 - each link found on the page, to check whether it is broken (these can be on other sites)
 

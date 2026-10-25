@@ -33,6 +33,8 @@ body { padding: 16px 16px 24px; display: flex; flex-direction: column; gap: 12px
 .empty { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 28px; text-align: center; }
 .history { display: flex; flex-direction: column; gap: 10px; padding: 16px; }
 .history-row { display: flex; align-items: center; gap: 8px; }
+.more { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+#job:empty { display: none; }
 
 /* Chrome lets the side panel shrink to about 320px. */
 @media (max-width: 360px) {

@@ -1,4 +1,5 @@
-import { esc, getIndex, getReport, label, pageUrl, runKey, startAudit } from "./lib.js";
+import { JOB_KEY, esc, getIndex, getReport, label, pageUrl, runKey, startAudit } from "./lib.js";
+import { bulkHtml, getJob, jobHtml, wireBulk, wireJob } from "./bulk.js";
 import { ago, counts, day, finding, metricsHtml, pill, ring, tally, verdict } from "./ui.js";
 
 // A page audited this recently shows its last run instead of re-auditing.
@@ -24,7 +25,23 @@ rerun.addEventListener("click", () => run());
 chrome.storage.session.onChanged.addListener((changes) => {
   const c = url && changes[runKey(url)];
   if (c?.newValue) onRun(c.newValue);
+  if (JOB_KEY in changes) showJob();
 });
+
+// Multi-page audits: progress under the page card, the form at the bottom.
+const jobEl = document.getElementById("job");
+const bulkEl = document.getElementById("bulk");
+let bulkMode = "crawl";
+async function showJob() {
+  jobEl.innerHTML = jobHtml(await getJob(), { openLink: true });
+  wireJob(jobEl);
+}
+function showBulk() {
+  bulkEl.innerHTML = `<div class="section-head"><p class="t-strong">Audit more than this page</p></div>
+    ${bulkHtml({ site: url ? new URL(url).origin + "/" : "", mode: bulkMode })}`;
+  wireBulk(bulkEl, { onMode: (m) => (bulkMode = m) });
+}
+showJob();
 
 // The panel stays open across tabs, so it follows whichever tab is in front.
 chrome.tabs.onActivated.addListener(follow);
@@ -39,7 +56,9 @@ async function follow() {
   const next = /^https?:/.test(tab?.url ?? "") ? pageUrl(tab.url) : null;
   title = tab?.title ?? "";
   if (next === url && next) return;
+  const siteChanged = (url && new URL(url).origin) !== (next && new URL(next).origin);
   url = next;
+  if (siteChanged || !bulkEl.innerHTML) showBulk();
   rerun.hidden = !url;
   pageCard.hidden = !url;
   if (!url) return browserPage();

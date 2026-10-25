@@ -82,6 +82,8 @@
 .page-row .when { grid-area: when; display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
 .page-row .actions { grid-area: actions; flex-wrap: nowrap; }
 .pending { color: var(--text-secondary); }
+.page-row.pending-row { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "score page"; }
+.pending-row .site-mark { grid-area: score; }
 
 /* Run history */
 .history { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: var(--radius-inner); background: var(--surface-sunken); }
@@ -107,7 +109,6 @@
 
 /* Pinned while scrolling a page report: the header, the tabs and the score column. */
 .pr-top { position: sticky; top: 0; z-index: 2; display: flex; flex-direction: column; gap: 16px; margin-top: -24px; padding: 24px 0 8px; background: var(--surface-page); }
-.one-line { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tabs-bar { position: sticky; top: var(--top-h, 0px); z-index: 1; padding: 8px 0; margin: -8px 0; background: var(--surface-page); }
 .pr-body { display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 24px; align-items: start; }
 .pr-side {
@@ -138,12 +139,16 @@
 .group-head .t-meta { flex: 1; text-align: right; }
 .print-title { display: none; }
 
+/* The single-page field inside the audit form card */
+.bulk .audit-field { background: var(--surface-sunken); box-shadow: none; }
+
 /* Empty dashboard */
 .empty-wrap { flex: 1; display: grid; place-items: center; }
 .empty-card { width: min(736px, 100%); display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 48px; text-align: center; border-radius: var(--radius-panel); background: var(--surface-card); box-shadow: var(--lift-card); }
 .empty-card .empty-mark { width: 64px; height: 64px; }
 .empty-card .empty-mark .icon { width: 28px; height: 28px; }
-.empty-card .audit-field { width: 100%; }
+.empty-card .bulk { width: 100%; padding: 0; box-shadow: none; text-align: left; }
+.empty-card #job-slot { width: 100%; }
 
 @media (max-width: 1360px) {
   .page-row {
