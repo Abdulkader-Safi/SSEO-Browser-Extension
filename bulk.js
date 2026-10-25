@@ -72,12 +72,28 @@ export function wireBulk(root, { onMode = () => {}, onStarted = () => {} } = {})
     }),
   );
 
-  const send = async (msg) => {
-    const res = await chrome.runtime.sendMessage(msg);
-    if (res?.state === "busy") return fail("Another multi-page audit is running. Wait for it to finish or stop it.");
-    if (res?.state === "error") return fail(res.error);
+  /** Resolves to true once the background accepted the job. */
+  const send = async (msg, form) => {
+    const button = form.querySelector("button");
+    const text = button.textContent;
+    button.disabled = true;
+    button.textContent = "Starting";
+    let res;
+    try {
+      res = await chrome.runtime.sendMessage(msg);
+    } catch {
+      res = undefined;
+    } finally {
+      button.disabled = false;
+      button.textContent = text;
+    }
+    // No answer means the background is an older copy that doesn't know this job.
+    if (!res) return fail("SSEO was just updated. Reload it on the extensions page, then try again."), false;
+    if (res.state === "busy") return fail("Another multi-page audit is running. Wait for it to finish or stop it."), false;
+    if (res.state === "error") return fail(res.error), false;
     fail("");
     onStarted(msg);
+    return true;
   };
 
   box.querySelector('[data-panel="list"]').addEventListener("submit", async (ev) => {
@@ -90,8 +106,7 @@ export function wireBulk(root, { onMode = () => {}, onStarted = () => {} } = {})
     if (bad.length) return fail(`Not a web address: ${bad.slice(0, 3).join(", ")}${bad.length > 3 ? ` and ${bad.length - 3} more` : ""}.`);
     const unique = [...new Set(urls)];
     if (unique.length > MAX_LIST) return fail(`That's ${unique.length} pages. The limit is ${MAX_LIST} per list.`);
-    await send({ type: "list", urls: unique });
-    field.value = "";
+    if (await send({ type: "list", urls: unique }, ev.target)) field.value = "";
   });
 
   box.querySelector('[data-panel="crawl"]').addEventListener("submit", async (ev) => {
@@ -99,7 +114,7 @@ export function wireBulk(root, { onMode = () => {}, onStarted = () => {} } = {})
     const url = normalizeUrl(box.querySelector("#bulk-site").value);
     if (!url) return fail("Enter the website's address, for example example.com.");
     const max = Math.min(MAX_CRAWL, Math.max(1, Math.round(Number(box.querySelector("#bulk-max").value) || DEFAULT_CRAWL)));
-    await send({ type: "crawl", url, max });
+    await send({ type: "crawl", url, max }, ev.target);
   });
 }
 
